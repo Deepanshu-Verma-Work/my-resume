@@ -1,0 +1,73 @@
+import os
+import re
+from config import Config
+import google.generativeai as genai
+
+class ResumeTailor:
+    def __init__(self):
+        self.base_resume_path = Config.RESUME_PATH
+        self.output_dir = Config.OUTPUT_DIR
+        
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+            
+        # Setup Gemini
+        if Config.GEMINI_API_KEY:
+            genai.configure(api_key=Config.GEMINI_API_KEY)
+            self.model = genai.GenerativeModel('gemini-pro')
+        else:
+            print("Warning: GEMINI_API_KEY not found. Resume tailoring will not work.")
+            self.model = None
+
+    def read_resume(self):
+        with open(self.base_resume_path, 'r', encoding='utf-8') as f:
+            return f.read()
+
+    def tailor_resume(self, jd_text):
+        if not self.model:
+            return None
+            
+        resume_content = self.read_resume()
+        
+        prompt = f"""
+        You are an expert Resume Writer. 
+        I have a LaTeX resume and a Job Description (JD). 
+        Your task is to modify the resume content to better align with the JD, WITHOUT lying or fabricating experience.
+        
+        Focus on:
+        1. Updating the "Career Summary" to highlight relevant skills.
+        2. Rephrasing bullet points in "Professional Experience" to match JD keywords.
+        3. Updating "Technical Skills" order to prioritize JD requirements.
+        
+        Here is the JD:
+        {jd_text}
+        
+        Here is the LaTeX Resume:
+        {resume_content}
+        
+        Return ONLY the full modified LaTeX code. Do not include markdown formatting like ```latex.
+        """
+        
+        try:
+            response = self.model.generate_content(prompt)
+            modified_latex = response.text
+            
+            # Clean up markdown if present
+            modified_latex = modified_latex.replace("```latex", "").replace("```", "")
+            
+            return modified_latex
+        except Exception as e:
+            print(f"Error tailoring resume: {e}")
+            return None
+
+    def save_resume(self, content, filename="tailored_resume.tex"):
+        path = os.path.join(self.output_dir, filename)
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        return path
+
+if __name__ == "__main__":
+    # Test
+    tailor = ResumeTailor()
+    dummy_jd = "Looking for a GenAI Engineer with experience in AWS Bedrock and Python."
+    # print(tailor.tailor_resume(dummy_jd))

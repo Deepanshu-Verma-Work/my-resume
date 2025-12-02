@@ -1,0 +1,8 @@
+selenium
+webdriver-manager
+python-dotenv
+pytest
+openai
+google-generativeai
+PyPDF2
+jinja2
