@@ -44,11 +44,27 @@ def main():
                         seen_urls.add(row[0]) # URL is the first column
 
         mode = 'a' if os.path.exists(csv_path) else 'w'
-        with open(csv_path, mode, newline='', encoding='utf-8') as f:
+        
+        try:
+            f = open(csv_path, mode, newline='', encoding='utf-8')
             writer = csv.writer(f)
             if mode == 'w':
                 writer.writerow(["Job URL", "Resume Path", "Status"])
-            
+        except PermissionError:
+            print(f"\nERROR: Permission denied for {csv_path}.")
+            print("Please CLOSE 'jobs.csv' if it is open in Excel or another program.")
+            print("Retrying in 5 seconds...")
+            time.sleep(5)
+            try:
+                f = open(csv_path, mode, newline='', encoding='utf-8')
+                writer = csv.writer(f)
+                if mode == 'w':
+                    writer.writerow(["Job URL", "Resume Path", "Status"])
+            except PermissionError:
+                print("Still cannot access the file. Exiting.")
+                return
+
+        with f:
             for i, link in enumerate(job_links):
                 if link in seen_urls:
                     print(f"Skipping already processed job: {link}")
