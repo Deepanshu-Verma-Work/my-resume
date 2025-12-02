@@ -63,15 +63,39 @@ class JobSearcher:
         
         job_links = []
         try:
-            # Extract job links (simplified selector)
-            articles = self.driver.find_elements(By.TAG_NAME, "article")
-            for article in articles[:5]: # Limit to 5 for testing
-                try:
-                    title_elem = article.find_element(By.CLASS_NAME, "title")
-                    link = title_elem.get_attribute("href")
-                    job_links.append(link)
-                except:
-                    continue
+            print(f"Scraping URL: {self.driver.current_url}")
+            
+            # Strategy 1: Look for specific job tuple classes
+            selectors = [
+                "div.srp-jobtuple-wrapper", 
+                "article.jobTuple", 
+                "div.list"
+            ]
+            
+            cards = []
+            for sel in selectors:
+                cards = self.driver.find_elements(By.CSS_SELECTOR, sel)
+                if cards:
+                    print(f"Found {len(cards)} cards using selector: {sel}")
+                    break
+            
+            # Strategy 2: If cards found, find links within them
+            if cards:
+                for card in cards[:5]:
+                    try:
+                        # Try finding title link
+                        link_elem = card.find_element(By.CSS_SELECTOR, "a.title")
+                        job_links.append(link_elem.get_attribute("href"))
+                    except:
+                        continue
+            
+            # Strategy 3: Direct link search if cards failed
+            if not job_links:
+                print("Strategy 1 failed. Trying direct link search...")
+                links = self.driver.find_elements(By.CSS_SELECTOR, "a.title")
+                for link in links[:5]:
+                    job_links.append(link.get_attribute("href"))
+                    
         except Exception as e:
             print(f"Error scraping jobs: {e}")
             
