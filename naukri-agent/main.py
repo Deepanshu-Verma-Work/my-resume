@@ -8,6 +8,7 @@ import random
 import os
 
 import csv
+from config import Config
 
 def main():
     print("Initializing Naukri AI Agent...")
@@ -56,9 +57,15 @@ def main():
                     saved_path = tailor.save_resume(modified_latex, filename)
                     print(f"Tailored resume saved to: {saved_path}")
                     
-                    # Log to CSV
-                    writer.writerow([link, saved_path, "Ready to Apply"])
-                    f.flush() # Ensure write
+                    # Compile PDF
+                    pdf_path = tailor.compile_resume(saved_path)
+                    
+                    if pdf_path:
+                        # Log to CSV
+                        writer.writerow([link, saved_path, "Ready to Apply"])
+                        f.flush() # Ensure write
+                    else:
+                        print("Skipping CSV log due to compilation failure.")
                 else:
                     print("Failed to tailor resume.")
                 

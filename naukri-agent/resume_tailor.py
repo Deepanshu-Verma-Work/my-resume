@@ -76,6 +76,40 @@ class ResumeTailor:
             f.write(content)
         return path
 
+    def compile_resume(self, tex_path):
+        try:
+            # MiKTeX path provided by user
+            miktex_bin = r"D:\MiKTeX_Naukri\miktex\bin\x64" 
+            pdflatex_cmd = os.path.join(miktex_bin, "pdflatex.exe")
+            
+            # If user installed elsewhere or added to PATH, fallback to just 'pdflatex'
+            if not os.path.exists(pdflatex_cmd):
+                pdflatex_cmd = "pdflatex"
+
+            output_dir = os.path.dirname(tex_path)
+            tex_filename = os.path.basename(tex_path)
+            
+            # Run pdflatex
+            # -interaction=nonstopmode prevents hanging on errors
+            # -output-directory ensures PDF goes to the right place
+            cmd = f'"{pdflatex_cmd}" -interaction=nonstopmode -output-directory "{output_dir}" "{tex_path}"'
+            
+            print(f"Compiling PDF: {cmd}")
+            ret = os.system(cmd)
+            
+            if ret == 0:
+                pdf_path = tex_path.replace(".tex", ".pdf")
+                if os.path.exists(pdf_path):
+                    print(f"PDF compiled successfully: {pdf_path}")
+                    return pdf_path
+            
+            print("PDF compilation failed.")
+            return None
+            
+        except Exception as e:
+            print(f"Error compiling PDF: {e}")
+            return None
+
 if __name__ == "__main__":
     # Test
     tailor = ResumeTailor()
