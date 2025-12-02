@@ -24,7 +24,7 @@ class ResumeTailor:
             except Exception as e:
                 print(f"Error listing models: {e}")
 
-            self.model = genai.GenerativeModel('gemini-1.5-flash-001')
+            self.model = genai.GenerativeModel('gemini-2.0-flash')
         else:
             print("Warning: GEMINI_API_KEY not found. Resume tailoring will not work.")
             self.model = None
