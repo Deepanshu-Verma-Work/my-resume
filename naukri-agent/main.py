@@ -39,7 +39,8 @@ def main():
             
             for i, link in enumerate(job_links):
                 print(f"\nProcessing Job {i+1}: {link}")
-                time.sleep(random.uniform(5, 10)) # Human-like pause between jobs
+                # Increased delay to avoid API rate limits (429)
+                time.sleep(random.uniform(15, 25))
                 
                 # 3. Get JD
                 jd_text = searcher.get_job_description(link)

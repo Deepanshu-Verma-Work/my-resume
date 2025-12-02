@@ -3,6 +3,7 @@ import re
 from config import Config
 import google.generativeai as genai
 import subprocess
+import time
 
 class ResumeTailor:
     def __init__(self):
@@ -75,17 +76,29 @@ class ResumeTailor:
         Return ONLY the full modified LaTeX code. Do not include markdown formatting like ```latex.
         """
         
-        try:
-            response = self.model.generate_content(prompt)
-            modified_latex = response.text
-            
-            # Clean up markdown if present
-            modified_latex = modified_latex.replace("```latex", "").replace("```", "")
-            
-            return modified_latex
-        except Exception as e:
-            print(f"Error tailoring resume: {e}")
-            return None
+        # Retry logic for API limits
+        max_retries = 3
+        base_delay = 10
+        
+        for attempt in range(max_retries):
+            try:
+                response = self.model.generate_content(prompt)
+                modified_latex = response.text
+                
+                # Clean up markdown if present
+                modified_latex = modified_latex.replace("```latex", "").replace("```", "")
+                
+                return modified_latex
+            except Exception as e:
+                if "429" in str(e):
+                    print(f"API Rate Limit hit. Retrying in {base_delay * (attempt + 1)} seconds...")
+                    time.sleep(base_delay * (attempt + 1))
+                else:
+                    print(f"Error tailoring resume: {e}")
+                    return None
+        
+        print("Failed to tailor resume after retries.")
+        return None
 
     def save_resume(self, content, filename="tailored_resume.tex"):
         path = os.path.join(self.output_dir, filename)
