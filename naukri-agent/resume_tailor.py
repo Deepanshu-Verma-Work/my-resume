@@ -64,8 +64,12 @@ class ResumeTailor:
             }}}}
            \\end{{itemize}}
         - Do NOT change the column definitions or the nesting.
-        - Ensure every row in tabularx ends with `\\\\` except the last one (optional but good practice).
-        - Do NOT add empty lines inside the `\\item{{...}}` block.
+        - Ensure every row in tabularx ends with `\\\\` except the last one.
+        
+        CRITICAL CONTENT INSTRUCTIONS:
+        - DO NOT change the "Years of Experience" or "Dates" of employment. Keep them EXACTLY as in the original resume.
+        - DO NOT fabricate new companies or titles. Only rephrase the *bullet points* to match the JD keywords.
+        - If the JD requires a skill the user doesn't have, do NOT add it. Only highlight existing relevant skills.
         
         Here is the JD:
         {jd_text}

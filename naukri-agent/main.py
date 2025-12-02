@@ -33,11 +33,27 @@ def main():
         
         # Prepare CSV for application tracking
         csv_path = os.path.join(Config.OUTPUT_DIR, "jobs.csv")
-        with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+        
+        # Load seen jobs to avoid duplicates
+        seen_urls = set()
+        if os.path.exists(csv_path):
+            with open(csv_path, 'r', encoding='utf-8') as f:
+                reader = csv.reader(f)
+                for row in reader:
+                    if row:
+                        seen_urls.add(row[0]) # URL is the first column
+
+        mode = 'a' if os.path.exists(csv_path) else 'w'
+        with open(csv_path, mode, newline='', encoding='utf-8') as f:
             writer = csv.writer(f)
-            writer.writerow(["Job URL", "Resume Path", "Status"])
+            if mode == 'w':
+                writer.writerow(["Job URL", "Resume Path", "Status"])
             
             for i, link in enumerate(job_links):
+                if link in seen_urls:
+                    print(f"Skipping already processed job: {link}")
+                    continue
+
                 print(f"\nProcessing Job {i+1}: {link}")
                 # Increased delay to avoid API rate limits (429)
                 time.sleep(random.uniform(15, 25))

@@ -55,7 +55,8 @@ class JobSearcher:
         print("Searching for jobs...")
         keywords = "%20".join(Config.KEYWORDS)
         location = Config.LOCATION
-        url = f"https://www.naukri.com/{keywords.lower().replace(' ', '-')}-jobs-in-{location.lower()}"
+        # sort=f sorts by Date (Freshness)
+        url = f"https://www.naukri.com/{keywords.lower().replace(' ', '-')}-jobs-in-{location.lower()}?sort=f"
         
         self.driver.get(url)
         self.random_sleep(3, 6)
