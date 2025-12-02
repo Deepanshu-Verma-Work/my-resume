@@ -4,11 +4,22 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from config import Config
 import time
+import random
 
 class JobSearcher:
     def __init__(self, driver):
         self.driver = driver
         self.wait = WebDriverWait(self.driver, 20)
+
+    def random_sleep(self, min_seconds=2, max_seconds=5):
+        time.sleep(random.uniform(min_seconds, max_seconds))
+
+    def human_scroll(self):
+        # Scroll down a bit randomly
+        height = self.driver.execute_script("return document.body.scrollHeight")
+        scroll_to = random.randint(0, int(height/2))
+        self.driver.execute_script(f"window.scrollTo(0, {scroll_to});")
+        self.random_sleep(1, 3)
 
     def login(self):
         print("Logging in...")
@@ -20,13 +31,14 @@ class JobSearcher:
             
             password_field = self.driver.find_element(By.ID, "passwordField")
             password_field.send_keys(Config.NAUKRI_PASSWORD)
+            self.random_sleep(1, 2)
             
             login_btn = self.driver.find_element(By.XPATH, "//button[text()='Login']")
             login_btn.click()
             
             # Wait for login to complete (check for profile picture or name)
             # This might fail if CAPTCHA appears
-            time.sleep(5) 
+            self.random_sleep(5, 8) 
             if "nlogin" not in self.driver.current_url:
                 print("Login successful (likely).")
                 return True
@@ -46,7 +58,8 @@ class JobSearcher:
         url = f"https://www.naukri.com/{keywords.lower().replace(' ', '-')}-jobs-in-{location.lower()}"
         
         self.driver.get(url)
-        time.sleep(3)
+        self.random_sleep(3, 6)
+        self.human_scroll()
         
         job_links = []
         try:
@@ -66,7 +79,8 @@ class JobSearcher:
 
     def get_job_description(self, url):
         self.driver.get(url)
-        time.sleep(2)
+        self.random_sleep(3, 6)
+        self.human_scroll()
         try:
             # Try multiple selectors for JD
             jd_elem = self.driver.find_element(By.CLASS_NAME, "job-desc")

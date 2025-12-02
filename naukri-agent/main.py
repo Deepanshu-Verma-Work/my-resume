@@ -4,6 +4,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from job_searcher import JobSearcher
 from resume_tailor import ResumeTailor
 import time
+import random
 import os
 
 def main():
@@ -29,6 +30,7 @@ def main():
         
         for i, link in enumerate(job_links):
             print(f"\nProcessing Job {i+1}: {link}")
+            time.sleep(random.uniform(5, 10)) # Human-like pause between jobs
             
             # 3. Get JD
             jd_text = searcher.get_job_description(link)
