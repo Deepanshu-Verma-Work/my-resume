@@ -50,6 +50,22 @@ class ResumeTailor:
         2. Rephrasing bullet points in "Professional Experience" to match JD keywords.
         3. Updating "Technical Skills" order to prioritize JD requirements.
         
+        CRITICAL LATEX INSTRUCTIONS:
+        - The "Technical Skills" section uses a `tabularx` inside an `itemize`. 
+        - YOU MUST MAINTAIN THIS EXACT STRUCTURE:
+          \\section{{Technical Skills}}
+           \\begin{{itemize}}[leftmargin=0.15in, label={{}}]
+            \\small{{\\item{{
+             \\begin{{tabularx}}{{\\linewidth}}{{ @{{}} l @{{\\hspace{{1ex}}}} X @{{}} }}
+              \\textbf{{Category}} & : Skills \\\\
+              \\textbf{{Another Category}} & : Skills \\\\
+             \\end{{tabularx}}
+            }}}}
+           \\end{{itemize}}
+        - Do NOT change the column definitions or the nesting.
+        - Ensure every row in tabularx ends with `\\\\` except the last one (optional but good practice).
+        - Do NOT add empty lines inside the `\\item{{...}}` block.
+        
         Here is the JD:
         {jd_text}
         
