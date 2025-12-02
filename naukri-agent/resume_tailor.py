@@ -2,6 +2,7 @@ import os
 import re
 from config import Config
 import google.generativeai as genai
+import subprocess
 
 class ResumeTailor:
     def __init__(self):
@@ -87,23 +88,25 @@ class ResumeTailor:
                 pdflatex_cmd = "pdflatex"
 
             output_dir = os.path.dirname(tex_path)
-            tex_filename = os.path.basename(tex_path)
             
-            # Run pdflatex
-            # -interaction=nonstopmode prevents hanging on errors
-            # -output-directory ensures PDF goes to the right place
-            cmd = f'"{pdflatex_cmd}" -interaction=nonstopmode -output-directory "{output_dir}" "{tex_path}"'
+            # Use subprocess.run for safer execution with arguments
+            cmd = [
+                pdflatex_cmd,
+                "-interaction=nonstopmode",
+                "-output-directory", output_dir,
+                tex_path
+            ]
             
-            print(f"Compiling PDF: {cmd}")
-            ret = os.system(cmd)
+            print(f"Compiling PDF: {' '.join(cmd)}")
+            result = subprocess.run(cmd, capture_output=True, text=True)
             
-            if ret == 0:
+            if result.returncode == 0:
                 pdf_path = tex_path.replace(".tex", ".pdf")
                 if os.path.exists(pdf_path):
                     print(f"PDF compiled successfully: {pdf_path}")
                     return pdf_path
             
-            print("PDF compilation failed.")
+            print(f"PDF compilation failed. Output:\n{result.stdout}\nError:\n{result.stderr}")
             return None
             
         except Exception as e:
