@@ -14,7 +14,17 @@ class ResumeTailor:
         # Setup Gemini
         if Config.GEMINI_API_KEY:
             genai.configure(api_key=Config.GEMINI_API_KEY)
-            self.model = genai.GenerativeModel('gemini-1.5-flash')
+            
+            # Debug: List available models
+            print("Available Gemini Models:")
+            try:
+                for m in genai.list_models():
+                    if 'generateContent' in m.supported_generation_methods:
+                        print(f"- {m.name}")
+            except Exception as e:
+                print(f"Error listing models: {e}")
+
+            self.model = genai.GenerativeModel('gemini-1.5-flash-001')
         else:
             print("Warning: GEMINI_API_KEY not found. Resume tailoring will not work.")
             self.model = None

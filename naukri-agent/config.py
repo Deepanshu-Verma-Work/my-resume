@@ -14,7 +14,7 @@ class Config:
     # Job Search Criteria
     KEYWORDS = ["Generative AI", "System Architect", "LLM", "RAG"]
     LOCATION = "Remote"
-    EXPERIENCE = 4
+    EXPERIENCE = 7
     
     # Paths
     RESUME_PATH = os.path.abspath("../main.tex")
