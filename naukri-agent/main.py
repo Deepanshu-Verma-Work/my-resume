@@ -7,6 +7,8 @@ import time
 import random
 import os
 
+import csv
+
 def main():
     print("Initializing Naukri AI Agent...")
     
@@ -28,30 +30,37 @@ def main():
         job_links = searcher.search_jobs()
         print(f"Found {len(job_links)} jobs.")
         
-        for i, link in enumerate(job_links):
-            print(f"\nProcessing Job {i+1}: {link}")
-            time.sleep(random.uniform(5, 10)) # Human-like pause between jobs
+        # Prepare CSV for application tracking
+        csv_path = os.path.join(Config.OUTPUT_DIR, "jobs.csv")
+        with open(csv_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(["Job URL", "Resume Path", "Status"])
             
-            # 3. Get JD
-            jd_text = searcher.get_job_description(link)
-            if len(jd_text) < 100:
-                print("JD too short or failed to extract. Skipping.")
-                continue
+            for i, link in enumerate(job_links):
+                print(f"\nProcessing Job {i+1}: {link}")
+                time.sleep(random.uniform(5, 10)) # Human-like pause between jobs
                 
-            print("Extracted JD. Tailoring resume...")
-            
-            # 4. Tailor Resume
-            modified_latex = tailor.tailor_resume(jd_text)
-            
-            if modified_latex:
-                filename = f"tailored_resume_{i+1}.tex"
-                saved_path = tailor.save_resume(modified_latex, filename)
-                print(f"Tailored resume saved to: {saved_path}")
+                # 3. Get JD
+                jd_text = searcher.get_job_description(link)
+                if len(jd_text) < 100:
+                    print("JD too short or failed to extract. Skipping.")
+                    continue
+                    
+                print("Extracted JD. Tailoring resume...")
                 
-                # Note: We stop here because we cannot compile PDF locally without pdflatex.
-                # In a full version, we would compile and then apply.
-            else:
-                print("Failed to tailor resume.")
+                # 4. Tailor Resume
+                modified_latex = tailor.tailor_resume(jd_text)
+                
+                if modified_latex:
+                    filename = f"tailored_resume_{i+1}.tex"
+                    saved_path = tailor.save_resume(modified_latex, filename)
+                    print(f"Tailored resume saved to: {saved_path}")
+                    
+                    # Log to CSV
+                    writer.writerow([link, saved_path, "Ready to Apply"])
+                    f.flush() # Ensure write
+                else:
+                    print("Failed to tailor resume.")
                 
     except Exception as e:
         print(f"An error occurred: {e}")
